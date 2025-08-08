@@ -1,0 +1,130 @@
+services:
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    ports:
+      - "20005:20005"
+    networks:
+      - hotel-network
+
+  kafka:
+    image: 'apache/kafka:3.7.0'
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_KRAFT_MODE: 'true'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENERS: 'PLAINTEXT://:9092,CONTROLLER://:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_NODE_ID: 1
+      KAFKA_LOG_DIRS: '/tmp/kraft-logs'
+      CLUSTER_ID: 'hotel-rez-cluster'
+    networks:
+      - hotel-network
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=p1geonflyp10
+      - POSTGRES_DB=HotelRezzervo
+    networks:
+      - hotel-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - hotel-network
+    volumes:
+      - redis-data:/data
+
+
+  hotel-service:
+    build:
+      context: .
+      dockerfile: hotel-service/Dockerfile
+    ports:
+      - "20000:20000"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:20005/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/HotelRezzervo
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=p1geonflyp10
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_DATA_REDIS_HOST=redis
+      - JPA-DDL-AUTO=validate #create for first run
+    depends_on:
+      - postgres
+      - eureka-server
+      - kafka
+      - redis
+    networks:
+      - hotel-network
+
+  reservation-service:
+    build:
+      context: .
+      dockerfile: reservation-service/Dockerfile
+    ports:
+      - "20001:20001"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:20005/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/HotelRezzervo
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=p1geonflyp10
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_DATA_REDIS_HOST=redis
+    depends_on:
+      - postgres
+      - eureka-server
+      - kafka
+      - redis
+    networks:
+      - hotel-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    ports:
+      - "20002:20002"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:20005/eureka/
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - eureka-server
+      - kafka
+    networks:
+      - hotel-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:20005/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - hotel-network
+
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  hotel-network:
+    driver: bridge
