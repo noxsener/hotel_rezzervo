@@ -23,30 +23,30 @@ public class RoomController {
     private final RoomService service;
 
     @GetMapping
-    public ResponseEntity<List<Room>> getRooms(Pageable pageable) {
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<List<RoomDto>> getRooms(Pageable pageable) {
+        return ResponseEntity.ok(service.findAll(pageable).stream().map(EntityMapper.INSTANCE::map).toList());
     }
 
     @GetMapping("hotel/{hotelId}")
-    public ResponseEntity<List<Room>> getHotelRooms(@PathVariable Long hotelId, Pageable pageable) {
-        return ResponseEntity.ok(service.findByHotel(hotelId,pageable));
+    public ResponseEntity<List<RoomDto>> getHotelRooms(@PathVariable Long hotelId, Pageable pageable) {
+        return ResponseEntity.ok(service.findByHotel(hotelId,pageable).stream().map(EntityMapper.INSTANCE::map).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Room> getRoom(@PathVariable Long id) {
-        return service.findById(id).map(a -> ResponseEntity.ok().body(a)).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<RoomDto> getRoom(@PathVariable Long id) {
+        return service.findById(id).map(room -> ResponseEntity.ok().body(EntityMapper.INSTANCE.map(room))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Room> saveRoom(@RequestBody RoomDto room) {
+    public ResponseEntity<RoomDto> saveRoom(@RequestBody RoomDto room) {
         Room entity = EntityMapper.INSTANCE.map(room);
-        return new ResponseEntity<>(service.save(entity), HttpStatus.CREATED);
+        return new ResponseEntity<>(EntityMapper.INSTANCE.map(service.save(entity)), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Room> updateRoom(@PathVariable Long id, @RequestBody RoomDto room) throws NotFound {
+    public ResponseEntity<RoomDto> updateRoom(@PathVariable Long id, @RequestBody RoomDto room) throws NotFound {
         Room entity = EntityMapper.INSTANCE.map(room);
-        return new ResponseEntity<>(service.update(id, entity), HttpStatus.CREATED);
+        return new ResponseEntity<>(EntityMapper.INSTANCE.map(service.update(id, entity)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

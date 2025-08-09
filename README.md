@@ -75,7 +75,7 @@ API Gateway, endpoint'leri temel bir JWT ile korumaktadır. Swagger arayüzleri 
 
 **Örnek Token:**
 ```
-eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.QW5vbnltb3VzRnJlZUJvdFVzZXI.ZXlKZmJXRm9iM1Z5SWpvaU1YVmxjbTF2Ykd4bGJtNWxZM1FpTENKMWNtd3ZkR1Z6ZEdWeWMybHZiaUk2SWpFNU5UYzBOVGt4TnpFeU5qZzJOVEF5SW4w.YWM5NzUwYjc3Y2EzYjBiY2Q3ZDQ5ZTA5M2QzM2IyMTI5YmYxZmM0YTczZTA4M2U4YjJiMWRmYWIzN2U4ZjM1ZA
+eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.QW5vbnltb3VzRnJlZUJvdFVzZXI=.Y2dWRTVnaGowTVc1bmxqS3Exb0Zib25waDdQRktYYlAyM1p1a0RLRzFodz0=
 ```
 
 **Token Nasıl Kullanılır?**

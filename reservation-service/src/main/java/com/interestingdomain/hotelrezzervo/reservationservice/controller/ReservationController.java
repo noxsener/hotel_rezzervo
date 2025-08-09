@@ -24,19 +24,20 @@ public class ReservationController {
     private final ReservationService service;
 
     @GetMapping
-    public ResponseEntity<List<Reservation>> getReservations(Pageable pageable) {
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<List<ReservationDto>> getReservations(Pageable pageable) {
+        return ResponseEntity.ok(service.findAll(pageable).stream().map(EntityMapper.INSTANCE::map).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reservation> getReservation(@PathVariable Long id) {
-        return service.findById(id).map(a -> ResponseEntity.ok().body(a)).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ReservationDto> getReservation(@PathVariable Long id) {
+        return service.findById(id).map(reservation -> ResponseEntity.ok().body(EntityMapper.INSTANCE.map(reservation)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> saveReservation(@RequestBody ReservationDto hotel) throws BadRequest {
+    public ResponseEntity<ReservationDto> saveReservation(@RequestBody ReservationDto hotel) throws BadRequest {
         Reservation entity = EntityMapper.INSTANCE.map(hotel);
-        return new ResponseEntity<>(service.save(entity), HttpStatus.CREATED);
+        return new ResponseEntity<>(EntityMapper.INSTANCE.map(service.save(entity)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

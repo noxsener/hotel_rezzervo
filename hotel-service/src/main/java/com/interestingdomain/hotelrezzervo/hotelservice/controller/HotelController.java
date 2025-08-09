@@ -23,25 +23,25 @@ public class HotelController {
     private final HotelService service;
 
     @GetMapping
-    public ResponseEntity<List<Hotel>> getHotels(Pageable pageable) {
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<List<HotelDto>> getHotels(Pageable pageable) {
+        return ResponseEntity.ok(service.findAll(pageable).stream().map(EntityMapper.INSTANCE::map).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Hotel> getHotel(@PathVariable Long id) {
-        return service.findById(id).map(a -> ResponseEntity.ok().body(a)).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<HotelDto> getHotel(@PathVariable Long id) {
+        return service.findById(id).map(hotel -> ResponseEntity.ok().body(EntityMapper.INSTANCE.map(hotel))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Hotel> saveHotel(@RequestBody HotelDto hotel) {
+    public ResponseEntity<HotelDto> saveHotel(@RequestBody HotelDto hotel) {
         Hotel entity = EntityMapper.INSTANCE.map(hotel);
-        return new ResponseEntity<>(service.save(entity), HttpStatus.CREATED);
+        return new ResponseEntity<>(EntityMapper.INSTANCE.map(service.save(entity)), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Hotel> updateHotel(@PathVariable Long id, @RequestBody HotelDto hotel) throws NotFound {
+    public ResponseEntity<HotelDto> updateHotel(@PathVariable Long id, @RequestBody HotelDto hotel) throws NotFound {
         Hotel entity = EntityMapper.INSTANCE.map(hotel);
-        return new ResponseEntity<>(service.update(id, entity), HttpStatus.CREATED);
+        return new ResponseEntity<>(EntityMapper.INSTANCE.map(service.update(id, entity)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
