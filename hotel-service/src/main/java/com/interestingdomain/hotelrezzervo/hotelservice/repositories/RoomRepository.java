@@ -1,5 +1,6 @@
 package com.interestingdomain.hotelrezzervo.hotelservice.repositories;
 
+import com.interestingdomain.hotelrezzervo.hotelservice.entity.Hotel;
 import com.interestingdomain.hotelrezzervo.hotelservice.entity.Room;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
@@ -10,4 +11,6 @@ import java.util.List;
 @Repository
 public interface RoomRepository extends CrudRepository<Room, Long> {
     List<Room> findAll(Pageable pageable);
+
+    List<Room> findByHotel(Hotel hotel, Pageable pageable);
 }

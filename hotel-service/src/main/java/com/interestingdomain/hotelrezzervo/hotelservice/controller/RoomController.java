@@ -27,6 +27,11 @@ public class RoomController {
         return ResponseEntity.ok(service.findAll(pageable));
     }
 
+    @GetMapping("hotel/{hotelId}")
+    public ResponseEntity<List<Room>> getHotelRooms(@PathVariable Long hotelId, Pageable pageable) {
+        return ResponseEntity.ok(service.findByHotel(hotelId,pageable));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Room> getRoom(@PathVariable Long id) {
         return service.findById(id).map(a -> ResponseEntity.ok().body(a)).orElse(ResponseEntity.notFound().build());

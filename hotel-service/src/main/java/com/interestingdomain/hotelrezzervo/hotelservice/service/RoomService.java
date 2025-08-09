@@ -1,5 +1,6 @@
 package com.interestingdomain.hotelrezzervo.hotelservice.service;
 
+import com.interestingdomain.hotelrezzervo.hotelservice.entity.Hotel;
 import com.interestingdomain.hotelrezzervo.hotelservice.entity.Room;
 import com.interestingdomain.hotelrezzervo.hotelservice.exception.NotFound;
 import com.interestingdomain.hotelrezzervo.hotelservice.repositories.RoomRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final HotelService hotelService;
 
     public Room save(Room room) {
         return roomRepository.save(room);
@@ -48,5 +51,13 @@ public class RoomService {
 
     public List<Room> findAll(Pageable pageable) {
         return roomRepository.findAll(pageable);
+    }
+
+    public List<Room> findByHotel(Long hotelId, Pageable pageable) {
+        Optional<Hotel> hotelOptional = hotelService.findById(hotelId);
+        if (hotelOptional.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return roomRepository.findByHotel(hotelOptional.get(),pageable);
     }
 }
